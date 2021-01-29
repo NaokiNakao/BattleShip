@@ -30,12 +30,15 @@
 #define ENTER   13
 #define ESC     27
 
-#define SEP        3
-#define OCEAN   BLUE
+#define SEP                    3
+#define CURSOR_COLOR   LIGHTGRAY
+#define OCEAN               BLUE
 
 /* Prototipos de función */
 
 void showBattleground(int [][DIMENSION]);
+void setColor(int, int);
+void defaultColor();
 
 int main()
 {
@@ -43,7 +46,6 @@ int main()
     int battleground[DIMENSION][DIMENSION] = {{0}};
 
     showBattleground(battleground);
-
 
     return 0;
 }
@@ -62,12 +64,40 @@ void showBattleground(int battleground[][DIMENSION])
    {
       for (col = 0; col < DIMENSION; col++)
       {
-         textbackground(OCEAN);
+         setColor(OCEAN, OCEAN);
          gotoxy(pos_x+col*SEP, pos_y+row);
-         printf(" %d ", battleground[row][col]);
+         printf(" %c ", battleground[row][col]);
       }
    }
 
+   defaultColor();
+
+   return;
+}
+
+/*
+   Función    : setColor
+   Argumentos : int text (color del texto).
+                int background (color del fondo).
+   Onjetivo   : cambiar el color del texto y del fondo.
+   Retrono    : ---
+*/
+void setColor(int text, int background)
+{
+   textcolor(text);
+   textbackground(background);
+   return;
+}
+
+/*
+   Función    : defaultColor
+   Argumentos : ---
+   Onjetivo   : restablecer los colores por defecto.
+   Retrono    : ---
+*/
+void defaultColor()
+{
+   setColor(WHITE, BLACK);
    return;
 }
 
