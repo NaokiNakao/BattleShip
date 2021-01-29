@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.c>
+#include <time.h>
 
 /* Directivas de preprocesador */
 
@@ -29,34 +30,92 @@
 #define LEFT    75
 #define ENTER   13
 #define ESC     27
+#define SPACE   32
 
-#define SEP                    3
+#define SEP      3
+
 #define CURSOR_COLOR   LIGHTGRAY
-#define OCEAN               BLUE
+#define OCEAN_COLOR         BLUE
 
 /* Prototipos de función */
 
-void showBattleground(int [][DIMENSION]);
+void cursorMovement(int [][DIMENSION]);
+void showBattleground(int [][DIMENSION], int, int);
 void setColor(int, int);
 void defaultColor();
 
 int main()
 {
+    gotoxy(21, 1);
+    printf("--- Battleship ---");
+
     // matriz 10x10 para representar el juego
     int battleground[DIMENSION][DIMENSION] = {{0}};
 
-    showBattleground(battleground);
+    cursorMovement(battleground);
 
     return 0;
 }
 
 /*
+   Función    : cursorMovement
+   Argumentos : battleground[][DIMENSION] (matriz que representa el óceano)
+   Onjetivo   : controlar la secuencia de juego.
+   Retorno    : ---
+*/
+void cursorMovement(int battleground[][DIMENSION])
+{
+   char key;
+   int pos_x = 0, pos_y = 0;
+
+   _setcursortype(FALSE);
+
+   while (TRUE)
+   {
+      showBattleground(battleground, pos_y, pos_x);
+
+      // validando teclas presionadas
+      do {
+         key = getch();
+      } while (key != UP && key != RIGHT && key != LEFT &&
+               key != DOWN && key != ENTER && key != ESC && key != SPACE);
+
+      // flecha arriba presionada
+      if (key == UP)
+      {
+         pos_y--;
+         if (pos_y < 0) pos_y = DIMENSION-1;
+      }
+      // flecha abajo presionada
+      else if (key == DOWN)
+      {
+         pos_y++;
+         if (pos_y == DIMENSION) pos_y = 0;
+      }
+      // flecha derecha presionada
+      else if (key == RIGHT)
+      {
+         pos_x++;
+         if (pos_x == DIMENSION) pos_x = 0;
+      }
+      // flecha izquierda presionada
+      else if (key == LEFT)
+      {
+         pos_x--;
+         if (pos_x < 0) pos_x = DIMENSION-1;
+      }
+   }
+}
+
+/*
    Función    : showBattleground
-   Argumentos : battleground[][DIMENSION] (matriz que representa el óceano).
+   Argumentos : int battleground[][DIMENSION] (matriz que representa el óceano)
+                int select_row (fila seleccionada).
+                int select_col (columna seleccionada).
    Onjetivo   : mostrar en pantalla el terreno de juego.
    Retrono    : ---
 */
-void showBattleground(int battleground[][DIMENSION])
+void showBattleground(int battleground[][DIMENSION], int select_row, int select_col)
 {
    int row, col, pos_x = 15, pos_y = 5;
 
@@ -64,7 +123,12 @@ void showBattleground(int battleground[][DIMENSION])
    {
       for (col = 0; col < DIMENSION; col++)
       {
-         setColor(OCEAN, OCEAN);
+         // diferenciando la casilla seleccionada del resto
+         if (select_row == row && select_col == col)
+            setColor(CURSOR_COLOR, CURSOR_COLOR);
+         else
+            setColor(OCEAN_COLOR, OCEAN_COLOR);
+
          gotoxy(pos_x+col*SEP, pos_y+row);
          printf(" %c ", battleground[row][col]);
       }
