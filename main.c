@@ -1,5 +1,5 @@
 /*
-   Juego de BattleShip programado en C.
+   Juego de Battleship programado en C.
 
    Autor : Naoki Nakao
    Fecha :
@@ -33,9 +33,13 @@
 #define SPACE   32
 
 #define SEP      3
+#define INI_X   21
+#define INI_Y    1
 
 #define CURSOR_COLOR   LIGHTGRAY
 #define OCEAN_COLOR         BLUE
+#define SHIP_COLOR        YELLOW
+#define FAILLED_COLOR        RED
 
 /* Prototipos de función */
 
@@ -46,13 +50,21 @@ void defaultColor();
 
 int main()
 {
-    gotoxy(21, 1);
-    printf("--- Battleship ---");
+    _setcursortype(FALSE);
 
-    // matriz 10x10 para representar el juego
-    int battleground[DIMENSION][DIMENSION] = {{0}};
+    while (TRUE)
+    {
+       gotoxy(INI_X, INI_Y);
+       printf("--- Battleship ---");
+       gotoxy(INI_X-9, INI_Y+2);
+       printf("Presione cualquier tecla para iniciar.");
+       getch();
 
-    cursorMovement(battleground);
+       // matriz 10x10 para representar el juego
+       int battleground[DIMENSION][DIMENSION] = {{0}};
+
+       cursorMovement(battleground);
+    }
 
     return 0;
 }
@@ -66,13 +78,17 @@ int main()
 void cursorMovement(int battleground[][DIMENSION])
 {
    char key;
-   int pos_x = 0, pos_y = 0;
+   int pos_x = 0, pos_y = 0, player_ships = MAX_SHIPS,
+       computer_ships = MAX_SHIPS, ready = FALSE;
 
-   _setcursortype(FALSE);
-
-   while (TRUE)
+   do
    {
-      showBattleground(battleground, pos_y, pos_x);
+      showBattleground(battleground, pos_x, pos_y);
+
+      // actualizando en pantalla la cantidad de barcos
+         gotoxy(INI_X-13, INI_Y+17);
+         printf("Tus barcos : %d | Barcos de la computadora : %d",
+                player_ships, computer_ships);
 
       // validando teclas presionadas
       do {
@@ -83,33 +99,57 @@ void cursorMovement(int battleground[][DIMENSION])
       // flecha arriba presionada
       if (key == UP)
       {
-         pos_y--;
-         if (pos_y < 0) pos_y = DIMENSION-1;
+         pos_x--;
+         if (pos_x < 0) pos_x = DIMENSION-1;
       }
       // flecha abajo presionada
       else if (key == DOWN)
       {
-         pos_y++;
-         if (pos_y == DIMENSION) pos_y = 0;
+         pos_x++;
+         if (pos_x == DIMENSION) pos_x = 0;
       }
       // flecha derecha presionada
       else if (key == RIGHT)
       {
-         pos_x++;
-         if (pos_x == DIMENSION) pos_x = 0;
+         pos_y++;
+         if (pos_y == DIMENSION) pos_y = 0;
       }
       // flecha izquierda presionada
       else if (key == LEFT)
       {
-         pos_x--;
-         if (pos_x < 0) pos_x = DIMENSION-1;
+         pos_y--;
+         if (pos_y < 0) pos_y = DIMENSION-1;
       }
-   }
+      // el jugador presiona la tecla ENTER
+      else if (key == ENTER)
+      {
+         // la variable "ready" indica si el jugador se encuentra preparando
+         // los barcos o si ya está jugando contra la computadora
+         if (ready)
+         {
+
+         }
+         else
+         {
+            // posicionando barcos del jugador
+            if (battleground[pos_x][pos_y] == EMPTY)
+            {
+               battleground[pos_x][pos_y] = PLAYER;
+               player_ships--;
+            }
+            else
+            {
+               battleground[pos_x][pos_y] = EMPTY;
+               player_ships++;
+            }
+         }
+      }
+   } while (key != ESC);
 }
 
 /*
    Función    : showBattleground
-   Argumentos : int battleground[][DIMENSION] (matriz que representa el óceano)
+   Argumentos : int battleground[][DIMENSION] (matriz que representa el océano)
                 int select_row (fila seleccionada).
                 int select_col (columna seleccionada).
    Onjetivo   : mostrar en pantalla el terreno de juego.
@@ -117,7 +157,7 @@ void cursorMovement(int battleground[][DIMENSION])
 */
 void showBattleground(int battleground[][DIMENSION], int select_row, int select_col)
 {
-   int row, col, pos_x = 15, pos_y = 5;
+   int row, col, pos_x = INI_X-6, pos_y = INI_Y+4;
 
    for (row = 0; row < DIMENSION; row++)
    {
@@ -126,6 +166,11 @@ void showBattleground(int battleground[][DIMENSION], int select_row, int select_
          // diferenciando la casilla seleccionada del resto
          if (select_row == row && select_col == col)
             setColor(CURSOR_COLOR, CURSOR_COLOR);
+
+         // diferenciando la casilla con barco del jugador
+         else if (battleground[row][col] == PLAYER)
+            setColor(SHIP_COLOR, OCEAN_COLOR);
+
          else
             setColor(OCEAN_COLOR, OCEAN_COLOR);
 
