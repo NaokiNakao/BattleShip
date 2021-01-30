@@ -35,6 +35,7 @@
 #define SEP      3
 #define INI_X   21
 #define INI_Y    1
+#define MAX_X   80
 
 #define CURSOR_COLOR   LIGHTGRAY
 #define OCEAN_COLOR         BLUE
@@ -47,6 +48,7 @@ void cursorMovement(int [][DIMENSION]);
 void showBattleground(int [][DIMENSION], int, int);
 void setColor(int, int);
 void defaultColor();
+void clearLine(int);
 
 int main()
 {
@@ -59,6 +61,7 @@ int main()
        gotoxy(INI_X-9, INI_Y+2);
        printf("Presione cualquier tecla para iniciar.");
        getch();
+       //clrscr();
 
        // matriz 10x10 para representar el juego
        int battleground[DIMENSION][DIMENSION] = {{0}};
@@ -78,17 +81,22 @@ int main()
 void cursorMovement(int battleground[][DIMENSION])
 {
    char key;
+   char erase_line[] = "\33[2k\r";
    int pos_x = 0, pos_y = 0, player_ships = MAX_SHIPS,
        computer_ships = MAX_SHIPS, ready = FALSE;
+
+   //gotoxy(INI_X, INI_Y);
+   //printf("--- Battleship ---");
+   clearLine(INI_Y+2);
 
    do
    {
       showBattleground(battleground, pos_x, pos_y);
 
       // actualizando en pantalla la cantidad de barcos
-         gotoxy(INI_X-13, INI_Y+17);
-         printf("Tus barcos : %d | Barcos de la computadora : %d",
-                player_ships, computer_ships);
+      gotoxy(INI_X-13, INI_Y+17);
+      printf("Tus barcos : %d | Barcos de la computadora : %d",
+             player_ships, computer_ships);
 
       // validando teclas presionadas
       do {
@@ -207,6 +215,22 @@ void setColor(int text, int background)
 void defaultColor()
 {
    setColor(WHITE, BLACK);
+   return;
+}
+
+/*
+   Función    : clearLine
+   Argumentos : int line (línea a borrar).
+   Onjetivo   : borrar línea especificada.
+   Retrono    : ---
+*/
+void clearLine(int line)
+{
+   gotoxy(1, line);
+
+   for (int i = 1; i <= MAX_X; i++)
+      printf(" ");
+
    return;
 }
 
