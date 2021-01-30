@@ -32,15 +32,21 @@
 #define ESC     27
 #define SPACE   32
 
-#define SEP      3
-#define INI_X   21
-#define INI_Y    1
-#define MAX_X   80
+#define SEP            3
+#define INI_X         21
+#define INI_Y          1
+#define MAX_X         80
+#define INSTR_LINE    INI_Y+2
 
 #define CURSOR_COLOR   LIGHTGRAY
 #define OCEAN_COLOR         BLUE
 #define SHIP_COLOR        YELLOW
 #define FAILLED_COLOR        RED
+
+#define START    1
+#define PREP     2
+#define READY    3
+#define ATTACK   4
 
 /* Prototipos de función */
 
@@ -49,6 +55,7 @@ void showBattleground(int [][DIMENSION], int, int);
 void setColor(int, int);
 void defaultColor();
 void clearLine(int);
+void instruction(int);
 
 int main()
 {
@@ -58,10 +65,8 @@ int main()
     {
        gotoxy(INI_X, INI_Y);
        printf("--- Battleship ---");
-       gotoxy(INI_X-9, INI_Y+2);
-       printf("Presione cualquier tecla para iniciar.");
+       instruction(START);
        getch();
-       //clrscr();
 
        // matriz 10x10 para representar el juego
        int battleground[DIMENSION][DIMENSION] = {{0}};
@@ -85,12 +90,16 @@ void cursorMovement(int battleground[][DIMENSION])
    int pos_x = 0, pos_y = 0, player_ships = MAX_SHIPS,
        computer_ships = MAX_SHIPS, ready = FALSE;
 
-   //gotoxy(INI_X, INI_Y);
-   //printf("--- Battleship ---");
-   clearLine(INI_Y+2);
+   clearLine(INSTR_LINE);
 
    do
    {
+      // imprimiendo mensaje de instrucción para el jugador
+      if (player_ships > EMPTY)
+         instruction(PREP);
+      else if (player_ships == EMPTY)
+         instruction(READY);
+
       showBattleground(battleground, pos_x, pos_y);
 
       // actualizando en pantalla la cantidad de barcos
@@ -142,8 +151,11 @@ void cursorMovement(int battleground[][DIMENSION])
             // posicionando barcos del jugador
             if (battleground[pos_x][pos_y] == EMPTY)
             {
-               battleground[pos_x][pos_y] = PLAYER;
-               player_ships--;
+               if (player_ships > EMPTY)
+               {
+                  battleground[pos_x][pos_y] = PLAYER;
+                  player_ships--;
+               }
             }
             else
             {
@@ -161,7 +173,7 @@ void cursorMovement(int battleground[][DIMENSION])
                 int select_row (fila seleccionada).
                 int select_col (columna seleccionada).
    Onjetivo   : mostrar en pantalla el terreno de juego.
-   Retrono    : ---
+   Retorno    : ---
 */
 void showBattleground(int battleground[][DIMENSION], int select_row, int select_col)
 {
@@ -197,7 +209,7 @@ void showBattleground(int battleground[][DIMENSION], int select_row, int select_
    Argumentos : int text (color del texto).
                 int background (color del fondo).
    Onjetivo   : cambiar el color del texto y del fondo.
-   Retrono    : ---
+   Retorno    : ---
 */
 void setColor(int text, int background)
 {
@@ -222,7 +234,7 @@ void defaultColor()
    Función    : clearLine
    Argumentos : int line (línea a borrar).
    Onjetivo   : borrar línea especificada.
-   Retrono    : ---
+   Retorno    : ---
 */
 void clearLine(int line)
 {
@@ -233,6 +245,38 @@ void clearLine(int line)
 
    return;
 }
+
+/*
+   Función    : instruction
+   Argumentos : command (especifica la instrucción actual).
+   Onjetivo   : imprimir en pantalla lo que debe hacer el jugador.
+   Retorno    : ---
+*/
+void instruction(int command)
+{
+   // comenzar el juego
+   if (command == START)
+   {
+      gotoxy(INI_X-9, INSTR_LINE);
+      printf("Presione cualquier tecla para iniciar.");
+   }
+   // colocar barcos
+   else if (command == PREP)
+   {
+      gotoxy(INI_X, INSTR_LINE);
+      printf("Coloque sus barcos.");
+   }
+   // barcos ya colocados
+   else if (command == READY)
+   {
+      gotoxy(INI_X-9, INI_Y+15);
+      printf("Presione barra espaciadora para iniciar.");
+   }
+
+   return;
+}
+
+
 
 
 
