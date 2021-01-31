@@ -53,7 +53,7 @@
 /* Prototipos de función */
 
 void game(int [][DIMENSION]);
-void showBattleground(int [][DIMENSION], int, int);
+void showBattleground(int [][DIMENSION], int, int, int);
 void setColor(int, int);
 void defaultColor();
 void clearLine(int, int);
@@ -106,7 +106,7 @@ void game(int battleground[][DIMENSION])
       else if (player_ships == EMPTY)
          instruction(READY);
 
-      showBattleground(battleground, pos_x, pos_y);
+      showBattleground(battleground, pos_x, pos_y, ready);
 
       // actualizando en pantalla la cantidad de barcos
       gotoxy(INI_X-13, INI_Y+17);
@@ -216,10 +216,11 @@ void game(int battleground[][DIMENSION])
    Argumentos : int battleground[][DIMENSION] (matriz que representa el océano)
                 int select_row (fila seleccionada).
                 int select_col (columna seleccionada).
+                int flag (indica si se deben esconder el caracter del jugador.
    Onjetivo   : mostrar en pantalla el terreno de juego.
    Retorno    : ---
 */
-void showBattleground(int battleground[][DIMENSION], int select_row, int select_col)
+void showBattleground(int matrix[][DIMENSION],int sel_row,int sel_col,int flag)
 {
    int row, col, pos_x = INI_X-6, pos_y = INI_Y+4;
 
@@ -228,18 +229,18 @@ void showBattleground(int battleground[][DIMENSION], int select_row, int select_
       for (col = 0; col < DIMENSION; col++)
       {
          // diferenciando la casilla seleccionada del resto
-         if (select_row == row && select_col == col)
+         if (sel_row == row && sel_col == col)
             setColor(CURSOR_COLOR, CURSOR_COLOR);
 
          // diferenciando la casilla con barco del jugador
-         else if (battleground[row][col] == PLAYER)
+         else if (matrix[row][col] == PLAYER && !flag)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
          else
             setColor(OCEAN_COLOR, OCEAN_COLOR);
 
          gotoxy(pos_x+col*SEP, pos_y+row);
-         printf(" %c ", battleground[row][col]);
+         printf(" %c ", matrix[row][col]);
       }
    }
 
