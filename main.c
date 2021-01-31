@@ -54,7 +54,7 @@ void cursorMovement(int [][DIMENSION]);
 void showBattleground(int [][DIMENSION], int, int);
 void setColor(int, int);
 void defaultColor();
-void clearLine(int);
+void clearLine(int, int);
 void instruction(int);
 void placeShipsComputer(int [][DIMENSION]);
 
@@ -90,7 +90,7 @@ void cursorMovement(int battleground[][DIMENSION])
    int pos_x = 0, pos_y = 0, player_ships = MAX_SHIPS,
        computer_ships = MAX_SHIPS, ready = FALSE, temp;
 
-   clearLine(INSTR_LINE);
+   clearLine(START, INSTR_LINE);
 
    do
    {
@@ -157,7 +157,7 @@ void cursorMovement(int battleground[][DIMENSION])
                   player_ships--;
 
                   if (player_ships == EMPTY)
-                     clearLine(INSTR_LINE);
+                     clearLine(START, INSTR_LINE);
                }
             }
             else
@@ -169,13 +169,17 @@ void cursorMovement(int battleground[][DIMENSION])
                // detectar si el jugador quiere modificar los barcos
                // después de haber colocado todos
                if (temp == EMPTY && player_ships > EMPTY)
-                  clearLine(INSTR_LINE);
+                  clearLine(START, INSTR_LINE);
             }
          }
       }
       // el jugador ya ha colocado los barcos
-      if (key == SPACE && player_ships == EMPTY)
+      else if (key == SPACE && player_ships == EMPTY && ready == FALSE)
+      {
          placeShipsComputer(battleground);
+         ready = TRUE;
+         clearLine(START, INSTR_LINE);
+      }
 
    } while (key != ESC);
 }
@@ -249,9 +253,9 @@ void defaultColor()
    Onjetivo   : borrar línea especificada.
    Retorno    : ---
 */
-void clearLine(int line)
+void clearLine(int x, int y)
 {
-   gotoxy(1, line);
+   gotoxy(x, y);
 
    for (int i = 1; i <= MAX_X; i++)
       printf(" ");
@@ -316,6 +320,10 @@ void placeShipsComputer(int battleground[][DIMENSION])
       printf("Barco %d desplegado...", count);
    }
    Sleep(DELAY);
+
+   // borrando líneas desplegadas
+   for (count = 0; count <= MAX_SHIPS; count++)
+      clearLine(pos_x, pos_y+count);
 
    return;
 }
