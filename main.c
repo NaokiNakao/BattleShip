@@ -86,9 +86,8 @@ int main()
 void cursorMovement(int battleground[][DIMENSION])
 {
    char key;
-   char erase_line[] = "\33[2k\r";
    int pos_x = 0, pos_y = 0, player_ships = MAX_SHIPS,
-       computer_ships = MAX_SHIPS, ready = FALSE;
+       computer_ships = MAX_SHIPS, ready = FALSE, temp;
 
    clearLine(INSTR_LINE);
 
@@ -155,12 +154,21 @@ void cursorMovement(int battleground[][DIMENSION])
                {
                   battleground[pos_x][pos_y] = PLAYER;
                   player_ships--;
+
+                  if (player_ships == EMPTY)
+                     clearLine(INSTR_LINE);
                }
             }
             else
             {
+               temp = player_ships;
                battleground[pos_x][pos_y] = EMPTY;
                player_ships++;
+
+               // detectar si el jugador quiere modificar los barcos
+               // después de haber colocado todos
+               if (temp == EMPTY && player_ships > EMPTY)
+                  clearLine(INSTR_LINE);
             }
          }
       }
@@ -269,7 +277,7 @@ void instruction(int command)
    // barcos ya colocados
    else if (command == READY)
    {
-      gotoxy(INI_X-9, INI_Y+15);
+      gotoxy(INI_X-9, INSTR_LINE);
       printf("Presione barra espaciadora para iniciar.");
    }
 
