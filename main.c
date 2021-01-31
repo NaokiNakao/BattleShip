@@ -50,7 +50,7 @@
 
 /* Prototipos de función */
 
-void cursorMovement(int [][DIMENSION]);
+void game(int [][DIMENSION]);
 void showBattleground(int [][DIMENSION], int, int);
 void setColor(int, int);
 void defaultColor();
@@ -72,19 +72,19 @@ int main()
        // matriz 10x10 para representar el juego
        int battleground[DIMENSION][DIMENSION] = {{0}};
 
-       cursorMovement(battleground);
+       game(battleground);
     }
 
     return 0;
 }
 
 /*
-   Función    : cursorMovement
+   Función    : game
    Argumentos : battleground[][DIMENSION] (matriz que representa el óceano)
    Onjetivo   : controlar la secuencia de juego.
    Retorno    : ---
 */
-void cursorMovement(int battleground[][DIMENSION])
+void game(int battleground[][DIMENSION])
 {
    char key;
    int pos_x = 0, pos_y = 0, player_ships = MAX_SHIPS,
@@ -94,8 +94,11 @@ void cursorMovement(int battleground[][DIMENSION])
 
    do
    {
+
       // imprimiendo mensaje de instrucción para el jugador
-      if (player_ships > EMPTY)
+      if (ready)
+         instruction(ATTACK);
+      else if (player_ships > EMPTY)
          instruction(PREP);
       else if (player_ships == EMPTY)
          instruction(READY);
@@ -288,6 +291,12 @@ void instruction(int command)
    {
       gotoxy(INI_X-9, INSTR_LINE);
       printf("Presione barra espaciadora para iniciar.");
+   }
+   // indicando ataque
+   else if (command == ATTACK)
+   {
+      gotoxy(INI_X-2, INSTR_LINE);
+      printf("Intente hundir un barco.");
    }
 
    return;
