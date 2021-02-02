@@ -163,7 +163,16 @@ void game(int battleground[][DIMENSION])
          // los barcos o si ya está jugando contra la computadora
          if (ready)
          {
+            // barco hundido, no se puede jugar en esa posición
+            if (battleground[pos_x][pos_y] == PLAYER_SHIP_DOWN ||
+                battleground[pos_x][pos_y] == COMPUTER_SHIP_DOWN)
+            {
+               gotoxy(INI_X-4, RESULT_LINE);
+               printf("Ya se hundi%c un barco aqu%c", 162, 161);
+               continue;
+            }
             playerGuess(battleground, ships, pos_x, pos_y);
+            Sleep(DELAY*3);
             computerGuess(battleground, ships);
          }
          else
@@ -263,6 +272,9 @@ void showBattleground(int matrix[][DIMENSION],int sel_row,int sel_col,int flag)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
          else if (matrix[row][col] == FAILLED)
+            setColor(SHIP_COLOR, OCEAN_COLOR);
+
+         else if (matrix[row][col] == COMPUTER_FAIL)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
          else
@@ -449,15 +461,12 @@ void playerGuess(int matrix[][DIMENSION], int ships[], int row, int col)
       ships[PLAYER_INDEX]--;
    }
    // el jugador no adivina ningún barco
-   else if (matrix[row][col] == EMPTY)
+   else if (matrix[row][col] == EMPTY ||
+            matrix[row][col] == COMPUTER_FAIL)
    {
       resultPlayer(EMPTY);
       matrix[row][col] = FAILLED;
    }
-   // el jugador hace jugada donde hay un barco hundido
-   else if (matrix[row][col] == PLAYER_SHIP_DOWN ||
-            matrix[row][col] == COMPUTER_SHIP_DOWN)
-      resultPlayer(FAILLED);
 
    return;
 }
@@ -487,11 +496,6 @@ void resultPlayer(int command)
       gotoxy(INI_X-2, RESULT_LINE);
       printf("%cLo siento, fallaste!", 173);
    }
-   else if (command == FAILLED)
-   {
-      gotoxy(INI_X-4, RESULT_LINE);
-      printf("Ya se hundi%c un barco aqu%c", 162, 161);
-   }
 
    return;
 }
@@ -512,7 +516,7 @@ void computerGuess(int matrix[][DIMENSION], int ships[])
    do {
       row = rand() % DIMENSION;
       col = rand() % DIMENSION;
-   } while (matrix[row][col] != COMPUTER_FAIL);
+   } while (matrix[row][col] == COMPUTER_FAIL);
 
    // la computadora adivina coordenadas de un barco del jugador
    if (matrix[row][col] == PLAYER)
