@@ -70,6 +70,7 @@ void playerGuess(int [][DIMENSION], int [], int, int);
 void resultPlayer(int);
 void computerGuess(int [][DIMENSION], int []);
 void resultComputer(int);
+void winner(int []);
 
 int main()
 {
@@ -102,7 +103,7 @@ void game(int battleground[][DIMENSION])
 {
    char key;
    int pos_x = 0, pos_y = 0, ships[] = {MAX_SHIPS, MAX_SHIPS},
-       ready = FALSE, computer_placing = FALSE, temp;
+       ready = FALSE, computer_placing = FALSE, temp, game_over = FALSE;
 
    clearLine(START, INSTR_LINE);
 
@@ -124,6 +125,13 @@ void game(int battleground[][DIMENSION])
       gotoxy(INI_X-13, INI_Y+17);
       printf("Tus barcos : %d | Barcos de la computadora : %d",
              ships[PLAYER_INDEX], ships[COMPUTER_INDEX]);
+
+      // terminando el juego si hay ganador
+      if (game_over)
+      {
+         winner(ships);
+         break;
+      }
 
       // validando teclas presionadas
       do {
@@ -172,8 +180,16 @@ void game(int battleground[][DIMENSION])
                continue;
             }
             playerGuess(battleground, ships, pos_x, pos_y);
-            Sleep(DELAY*3);
-            computerGuess(battleground, ships);
+            if (!ships[COMPUTER_INDEX] || !ships[PLAYER_INDEX])
+               game_over = TRUE;
+
+            if (!game_over)
+            {
+               Sleep(DELAY*3);
+               computerGuess(battleground, ships);
+               if (!ships[PLAYER_INDEX] || !ships[COMPUTER_INDEX])
+                  game_over = TRUE;
+            }
          }
          else
             placePlayerShip(battleground, ships, pos_x, pos_y);
@@ -272,7 +288,7 @@ void showBattleground(int matrix[][DIMENSION],int sel_row,int sel_col,int flag)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
          else if (matrix[row][col] == FAILLED)
-            setColor(SHIP_COLOR, OCEAN_COLOR);
+            setColor(FAILLED_COLOR, OCEAN_COLOR);
 
          else if (matrix[row][col] == COMPUTER_FAIL)
             setColor(SHIP_COLOR, OCEAN_COLOR);
@@ -565,6 +581,38 @@ void resultComputer(int command)
       gotoxy(INI_X-5, RESULT_LINE);
       printf("%cLa computadora ha fallado!", 173);
    }
+}
+
+/*
+   Función    : winner
+   Argumentos : int ships[] (arreglo que contiene la cantidad de barcos)
+   Onjetivo   : detectar ganador e indicar en pantalla
+   Retorno    : ---
+*/
+void winner(int ships[])
+{
+   clearLine(START, INSTR_LINE);
+
+   // si el jugador ganó
+   if (!ships[COMPUTER_INDEX])
+   {
+      gotoxy(INI_X-2, INSTR_LINE);
+      printf("%cFelicidades, ganaste!", 173);
+   }
+   // si la computadora ganó
+   if (!ships[PLAYER_INDEX])
+   {
+      gotoxy(INI_X-7, INSTR_LINE);
+      printf("La computadora ha ganado el juego");
+   }
+
+   gotoxy(SHIP_DEP_X, SHIP_DEP_Y);
+   printf("Presiona cualquier tecla");
+   getch();
+   clrscr();
+   clearLine(START, INI_Y+17);
+
+   return;
 }
 
 
