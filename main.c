@@ -164,6 +164,7 @@ void game(int battleground[][DIMENSION])
          if (ready)
          {
             playerGuess(battleground, ships, pos_x, pos_y);
+            computerGuess(battleground, ships);
          }
          else
             placePlayerShip(battleground, ships, pos_x, pos_y);
@@ -521,17 +522,45 @@ void computerGuess(int matrix[][DIMENSION], int ships[])
       ships[PLAYER_INDEX]--;
    }
    // la computadora adivina coordenadas su propio barco
-   if (matrix[row][col] == COMPUTER)
+   else if (matrix[row][col] == COMPUTER)
    {
       resultComputer(COMPUTER);
       matrix[row][col] = COMPUTER_SHIP_DOWN;
       ships[COMPUTER_INDEX]--;
    }
+   // la computadora no acertó ningún barco
+   else if (matrix[row][col] == EMPTY)
+   {
+      resultComputer(EMPTY);
+      matrix[row][col] = COMPUTER_FAIL;
+   }
 }
 
+/*
+   Función    : resultComputer
+   Argumentos : int command (indicará el mensaje del resultado de la jugada)
+   Onjetivo   : imprimir en pantalla el resultado de computadora
+   Retorno    : ---
+*/
 void resultComputer(int command)
 {
+   clearLine(START, RESULT_LINE);
 
+   if (command == PLAYER)
+   {
+      gotoxy(INI_X-11, RESULT_LINE);
+      printf("%cLa computadora hundi%c uno de sus barcos!", 173, 162);
+   }
+   else if (command == COMPUTER)
+   {
+      gotoxy(INI_X-13, RESULT_LINE);
+      printf("%cLa computadora hundi%c una de sus propias naves!", 173, 162);
+   }
+   else if (command == EMPTY)
+   {
+      gotoxy(INI_X-5, RESULT_LINE);
+      printf("%cLa computadora ha fallado!", 173);
+   }
 }
 
 
