@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.c>
+#include <string.h>
 #include <time.h>
 
 /* Directivas de preprocesador */
@@ -62,10 +63,9 @@ void placeComputerShip(int [][DIMENSION], int);
 
 int main()
 {
-    _setcursortype(FALSE);
-
     while (TRUE)
     {
+       _setcursortype(FALSE);
        gotoxy(INI_X, INI_Y);
        printf("--- Battleship ---");
        instruction(START);
@@ -95,8 +95,9 @@ void game(int battleground[][DIMENSION])
 
    clearLine(START, INSTR_LINE);
 
-   do
+   while (TRUE)
    {
+      _setcursortype(FALSE);
 
       // imprimiendo mensaje de instrucción para el jugador
       if (ready)
@@ -184,6 +185,30 @@ void game(int battleground[][DIMENSION])
       else if (key == SPACE && player_ships == EMPTY && ready == FALSE)
          computer_placing = TRUE;
 
+      // opción de salir
+      else if (key == ESC)
+      {
+         _setcursortype(30);
+         gotoxy(SHIP_DEP_X, SHIP_DEP_Y);
+         printf("%cDesea salir? (S)i (N)o : ", 168);
+
+         do {
+            key = toupper(getch());
+         } while (key != 'S' && key != 'N');
+
+         if (key == 'S')
+         {
+            clrscr();
+            clearLine(START, INI_Y+17);
+            break;
+         }
+         else
+         {
+            clearLine(SHIP_DEP_X, SHIP_DEP_Y);
+            continue;
+         }
+      }
+
       // colocando los barcos de la computadora
       if (computer_placing == TRUE)
       {
@@ -207,8 +232,9 @@ void game(int battleground[][DIMENSION])
             }
          }
       }
+   }
 
-   } while (key != ESC);
+   return;
 }
 
 /*
