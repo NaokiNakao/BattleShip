@@ -41,6 +41,7 @@
 #define INI_Y          1
 #define MAX_X         80
 #define INSTR_LINE    INI_Y+2
+#define RESULT_LINE   INI_Y+14
 #define SHIP_DEP_X    40
 #define SHIP_DEP_Y     7
 
@@ -65,6 +66,7 @@ void instruction(int);
 void placePlayerShip(int [][DIMENSION], int [], int, int);
 void placeComputerShip(int [][DIMENSION], int);
 void playerGuess(int [][DIMENSION], int [], int, int);
+void resultPlayer(int);
 
 int main()
 {
@@ -113,6 +115,9 @@ void game(int battleground[][DIMENSION])
 
       showBattleground(battleground, pos_x, pos_y, ready);
 
+      gotoxy(INI_X-4, RESULT_LINE);
+      printf("Ya se hundi%c un barco aqu%c", 162, 161);
+
       // actualizando en pantalla la cantidad de barcos
       gotoxy(INI_X-13, INI_Y+17);
       printf("Tus barcos : %d | Barcos de la computadora : %d",
@@ -156,7 +161,7 @@ void game(int battleground[][DIMENSION])
          // los barcos o si ya está jugando contra la computadora
          if (ready)
          {
-
+            playerGuess(battleground, ships, pos_x, pos_y);
          }
          else
             placePlayerShip(battleground, ships, pos_x, pos_y);
@@ -241,14 +246,15 @@ void showBattleground(int matrix[][DIMENSION],int sel_row,int sel_col,int flag)
             setColor(CURSOR_COLOR, CURSOR_COLOR);
 
          // diferenciando la casilla con barco del jugador
-         else if (matrix[row][col] == PLAYER && !flag)
+         //else if (matrix[row][col] == PLAYER && !flag)
+         else if (matrix[row][col] == PLAYER)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
          else
             setColor(OCEAN_COLOR, OCEAN_COLOR);
 
          gotoxy(pos_x+col*SEP, pos_y+row);
-         printf(" %c ", matrix[row][col]);
+         printf(" %d ", matrix[row][col]);
       }
    }
 
@@ -433,10 +439,47 @@ void playerGuess(int matrix[][DIMENSION], int ships[], int row, int col)
       resultPlayer(EMPTY);
       matrix[row][col] = FAILLED;
    }
+   // el jugador hace jugada donde hay un barco hundido
+   else if (matrix[row][col] == PLAYER_SHIP_DOWN ||
+            matrix[row][col] == COMPUTER_SHIP_DOWN)
+      resultPlayer(FAILLED);
 
    return;
 }
 
+/*
+   Función    : resultPlayer
+   Argumentos : int command (indicará el mensaje del resultado de la jugada)
+   Onjetivo   : imprimir en pantalla el resultado de la jugada del jugador
+   Retorno    : ---
+*/
+void resultPlayer(int command)
+{
+   clearLine(START, RESULT_LINE);
+
+   if  (command == COMPUTER)
+   {
+      gotoxy(INI_X-5, RESULT_LINE);
+      printf("%cBoom!%cHas hundido el barco!", 173, 173);
+   }
+   else if (command == PLAYER)
+   {
+      gotoxy(INI_X-8, RESULT_LINE);
+      printf("Oh no, hundiste tu propio barco :(");
+   }
+   else if (command == EMPTY)
+   {
+      gotoxy(INI_X-2, RESULT_LINE);
+      printf("%cLo siento, fallaste!", 173);
+   }
+   else if (command == FAILLED)
+   {
+      gotoxy(INI_X, RESULT_LINE);
+      printf("Ya se hundi%c un barco aqu%c", 162, 161);
+   }
+
+   return;
+}
 
 
 
