@@ -27,6 +27,7 @@
 #define PLAYER_SHIP_DOWN     35
 #define COMPUTER_SHIP_DOWN   33
 #define FAILLED              88
+#define COMPUTER_FAIL        70
 
 #define UP      72
 #define DOWN    80
@@ -67,24 +68,28 @@ void placePlayerShip(int [][DIMENSION], int [], int, int);
 void placeComputerShip(int [][DIMENSION], int);
 void playerGuess(int [][DIMENSION], int [], int, int);
 void resultPlayer(int);
+void computerGuess(int [][DIMENSION], int []);
+void resultComputer(int);
 
 int main()
 {
-    while (TRUE)
-    {
-       _setcursortype(FALSE);
-       gotoxy(INI_X, INI_Y);
-       printf("--- Battleship ---");
-       instruction(START);
-       getch();
+   srand(time(NULL));
 
-       // matriz 10x10 para representar el juego
-       int battleground[DIMENSION][DIMENSION] = {{0}};
+   while (TRUE)
+   {
+      _setcursortype(FALSE);
+      gotoxy(INI_X, INI_Y);
+      printf("--- Battleship ---");
+      instruction(START);
+      getch();
 
-       game(battleground);
-    }
+      // matriz 10x10 para representar el juego
+      int battleground[DIMENSION][DIMENSION] = {{0}};
 
-    return 0;
+      game(battleground);
+   }
+
+   return 0;
 }
 
 /*
@@ -114,9 +119,6 @@ void game(int battleground[][DIMENSION])
          instruction(READY);
 
       showBattleground(battleground, pos_x, pos_y, ready);
-
-      gotoxy(INI_X-4, RESULT_LINE);
-      printf("Ya se hundi%c un barco aqu%c", 162, 161);
 
       // actualizando en pantalla la cantidad de barcos
       gotoxy(INI_X-13, INI_Y+17);
@@ -250,11 +252,23 @@ void showBattleground(int matrix[][DIMENSION],int sel_row,int sel_col,int flag)
          else if (matrix[row][col] == PLAYER)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
+         else if (matrix[row][col] == COMPUTER)
+            setColor(SHIP_COLOR, OCEAN_COLOR);
+
+         else if (matrix[row][col] == PLAYER_SHIP_DOWN)
+            setColor(SHIP_COLOR, OCEAN_COLOR);
+
+         else if (matrix[row][col] == COMPUTER_SHIP_DOWN)
+            setColor(SHIP_COLOR, OCEAN_COLOR);
+
+         else if (matrix[row][col] == FAILLED)
+            setColor(SHIP_COLOR, OCEAN_COLOR);
+
          else
             setColor(OCEAN_COLOR, OCEAN_COLOR);
 
          gotoxy(pos_x+col*SEP, pos_y+row);
-         printf(" %d ", matrix[row][col]);
+         printf(" %c ", matrix[row][col]);
       }
    }
 
@@ -474,11 +488,50 @@ void resultPlayer(int command)
    }
    else if (command == FAILLED)
    {
-      gotoxy(INI_X, RESULT_LINE);
+      gotoxy(INI_X-4, RESULT_LINE);
       printf("Ya se hundi%c un barco aqu%c", 162, 161);
    }
 
    return;
+}
+
+/*
+   Función    : computerGuess
+   Argumentos : int matrix[][DIMENSION] (matriz que representa el óceano)
+                int ships[] (arreglo que contiene la cantidad de barcos)
+   Onjetivo   : hacer jugada de la computadora
+   Retorno    : ---
+*/
+void computerGuess(int matrix[][DIMENSION], int ships[])
+{
+   int row, col;
+
+   // generando jugada de la computadora en una casilla
+   // en la cual no haya jugado
+   do {
+      row = rand() % DIMENSION;
+      col = rand() % DIMENSION;
+   } while (matrix[row][col] != COMPUTER_FAIL);
+
+   // la computadora adivina coordenadas de un barco del jugador
+   if (matrix[row][col] == PLAYER)
+   {
+      resultComputer(PLAYER);
+      matrix[row][col] = PLAYER_SHIP_DOWN;
+      ships[PLAYER_INDEX]--;
+   }
+   // la computadora adivina coordenadas su propio barco
+   if (matrix[row][col] == COMPUTER)
+   {
+      resultComputer(COMPUTER);
+      matrix[row][col] = COMPUTER_SHIP_DOWN;
+      ships[COMPUTER_INDEX]--;
+   }
+}
+
+void resultComputer(int command)
+{
+
 }
 
 
