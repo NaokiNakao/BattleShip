@@ -24,8 +24,9 @@
 #define EMPTY             FALSE
 #define PLAYER              219
 #define COMPUTER             67
-#define PLAYER_SHIP_DOWN     88
+#define PLAYER_SHIP_DOWN     35
 #define COMPUTER_SHIP_DOWN   33
+#define FAILLED              88
 
 #define UP      72
 #define DOWN    80
@@ -63,6 +64,7 @@ void clearLine(int, int);
 void instruction(int);
 void placePlayerShip(int [][DIMENSION], int [], int, int);
 void placeComputerShip(int [][DIMENSION], int);
+void playerGuess(int [][DIMENSION], int [], int, int);
 
 int main()
 {
@@ -157,32 +159,7 @@ void game(int battleground[][DIMENSION])
 
          }
          else
-         {
-            // posicionando barcos del jugador
-            /*if (battleground[pos_x][pos_y] == EMPTY)
-            {
-               if (player_ships > EMPTY)
-               {
-                  battleground[pos_x][pos_y] = PLAYER;
-                  player_ships--;
-
-                  if (player_ships == EMPTY)
-                     clearLine(START, INSTR_LINE);
-               }
-            }
-            else
-            {
-               temp = player_ships;
-               battleground[pos_x][pos_y] = EMPTY;
-               player_ships++;
-
-               // detectar si el jugador quiere modificar los barcos
-               // después de haber colocado todos
-               if (temp == EMPTY && player_ships > EMPTY)
-                  clearLine(START, INSTR_LINE);
-            }*/
             placePlayerShip(battleground, ships, pos_x, pos_y);
-         }
       }
       // el jugador ya ha confirmado el lugar de los 5 barcos
       else if (key == SPACE && ships[PLAYER_INDEX] == EMPTY && ready == FALSE)
@@ -360,8 +337,11 @@ void instruction(int command)
 
 /*
    Función    : placePlayerShip
-   Argumentos : int matrix
-   Onjetivo   : colocar los barcos de la computadora.
+   Argumentos : int matrix[][DIMENSION] (matriz que representa el óceano)
+                int ships[] (arreglo que contiene la cantidad de barcos)
+                int row (fila seleccionada)
+                int col (columna seleccionada)
+   Onjetivo   : colocar barco del jugador.
    Retorno    : ---
 */
 void placePlayerShip(int matrix[][DIMENSION], int ships[], int row, int col)
@@ -381,12 +361,12 @@ void placePlayerShip(int matrix[][DIMENSION], int ships[], int row, int col)
    }
    else
    {
+      // detectar si el jugador quiere modificar los barcos
+      // después de haber colocado todos
       temp = ships[PLAYER_INDEX];
       matrix[row][col] = EMPTY;
       ships[PLAYER_INDEX]++;
 
-      // detectar si el jugador quiere modificar los barcos
-      // después de haber colocado todos
       if (temp == EMPTY && ships[PLAYER_INDEX] > EMPTY)
          clearLine(START, INSTR_LINE);
    }
@@ -418,6 +398,41 @@ void placeComputerShip(int matrix[][DIMENSION], int count)
    Sleep(DELAY);
    gotoxy(SHIP_DEP_X, SHIP_DEP_Y+MAX_SHIPS-count+1);
    printf("Barco %d desplegado...", MAX_SHIPS - count + 1);
+
+   return;
+}
+
+/*
+   Función    : playerGuess
+   Argumentos : int matrix[][DIMENSION] (matriz que representa el óceano)
+                int ships[] (arreglo que contiene la cantidad de barcos)
+                int row (fila seleccionada)
+                int col (columna seleccionada)
+   Onjetivo   : verificar el resultado en intento del jugador.
+   Retorno    : ---
+*/
+void playerGuess(int matrix[][DIMENSION], int ships[], int row, int col)
+{
+   // el jugador adivinó las coordenadas de un barco de la computadora
+   if (matrix[row][col] == COMPUTER)
+   {
+      resultPlayer(COMPUTER);
+      matrix[row][col] = COMPUTER_SHIP_DOWN;
+      ships[COMPUTER_INDEX]--;
+   }
+   // el jugador ingresó las coordanadas de su propio barco
+   else if (matrix[row][col] == PLAYER)
+   {
+      resultPlayer(PLAYER);
+      matrix[row][col] = PLAYER_SHIP_DOWN;
+      ships[PLAYER_INDEX]--;
+   }
+   // el jugador no adivina ningún barco
+   else if (matrix[row][col] == EMPTY)
+   {
+      resultPlayer(EMPTY);
+      matrix[row][col] = FAILLED;
+   }
 
    return;
 }
