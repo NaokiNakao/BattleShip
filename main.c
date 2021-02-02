@@ -19,6 +19,8 @@
 
 #define DIMENSION            10
 #define MAX_SHIPS             5
+#define PLAYER_INDEX          1
+#define COMPUTER_INDEX        0
 #define EMPTY             FALSE
 #define PLAYER              219
 #define COMPUTER             67
@@ -59,6 +61,7 @@ void setColor(int, int);
 void defaultColor();
 void clearLine(int, int);
 void instruction(int);
+void placePlayerShip(int [][DIMENSION], int [], int, int);
 void placeComputerShip(int [][DIMENSION], int);
 
 int main()
@@ -89,9 +92,8 @@ int main()
 void game(int battleground[][DIMENSION])
 {
    char key;
-   int pos_x = 0, pos_y = 0, player_ships = MAX_SHIPS,
-       computer_ships = MAX_SHIPS, ready = FALSE,
-       computer_placing = FALSE, temp;
+   int pos_x = 0, pos_y = 0, ships[] = {MAX_SHIPS, MAX_SHIPS},
+       ready = FALSE, computer_placing = FALSE, temp;
 
    clearLine(START, INSTR_LINE);
 
@@ -102,9 +104,9 @@ void game(int battleground[][DIMENSION])
       // imprimiendo mensaje de instrucción para el jugador
       if (ready)
          instruction(ATTACK);
-      else if (player_ships > EMPTY)
+      else if (ships[PLAYER_INDEX] > EMPTY)
          instruction(PREP);
-      else if (player_ships == EMPTY)
+      else if (ships[PLAYER_INDEX] == EMPTY)
          instruction(READY);
 
       showBattleground(battleground, pos_x, pos_y, ready);
@@ -112,7 +114,7 @@ void game(int battleground[][DIMENSION])
       // actualizando en pantalla la cantidad de barcos
       gotoxy(INI_X-13, INI_Y+17);
       printf("Tus barcos : %d | Barcos de la computadora : %d",
-             player_ships, computer_ships);
+             ships[PLAYER_INDEX], ships[COMPUTER_INDEX]);
 
       // validando teclas presionadas
       do {
@@ -157,7 +159,7 @@ void game(int battleground[][DIMENSION])
          else
          {
             // posicionando barcos del jugador
-            if (battleground[pos_x][pos_y] == EMPTY)
+            /*if (battleground[pos_x][pos_y] == EMPTY)
             {
                if (player_ships > EMPTY)
                {
@@ -178,11 +180,12 @@ void game(int battleground[][DIMENSION])
                // después de haber colocado todos
                if (temp == EMPTY && player_ships > EMPTY)
                   clearLine(START, INSTR_LINE);
-            }
+            }*/
+            placePlayerShip(battleground, ships, pos_x, pos_y);
          }
       }
       // el jugador ya ha confirmado el lugar de los 5 barcos
-      else if (key == SPACE && player_ships == EMPTY && ready == FALSE)
+      else if (key == SPACE && ships[PLAYER_INDEX] == EMPTY && ready == FALSE)
          computer_placing = TRUE;
 
       // opción de salir
@@ -212,16 +215,18 @@ void game(int battleground[][DIMENSION])
       // colocando los barcos de la computadora
       if (computer_placing == TRUE)
       {
-         if (computer_ships > EMPTY)
+         if (ships[COMPUTER_INDEX] > EMPTY)
          {
-            placeComputerShip(battleground, computer_ships);
-            computer_ships--;
+            placeComputerShip(battleground, ships[COMPUTER_INDEX]);
+            ships[COMPUTER_INDEX]--;
          }
          else
          {
             Sleep(DELAY);
             ready = TRUE;
             computer_placing = FALSE;
+            ships[PLAYER_INDEX] = MAX_SHIPS;
+            ships[COMPUTER_INDEX] = MAX_SHIPS;
             clearLine(START, INSTR_LINE);
 
             // borrando líneas de desplegadas
@@ -354,13 +359,49 @@ void instruction(int command)
 }
 
 /*
+   Función    : placePlayerShip
+   Argumentos : int matrix
+   Onjetivo   : colocar los barcos de la computadora.
+   Retorno    : ---
+*/
+void placePlayerShip(int matrix[][DIMENSION], int ships[], int row, int col)
+{
+   int temp;
+
+   if (matrix[row][col] == EMPTY)
+   {
+      if (ships[PLAYER_INDEX] > EMPTY)
+      {
+         matrix[row][col] = PLAYER;
+         ships[PLAYER_INDEX]--;
+
+         if (ships[PLAYER_INDEX] == EMPTY)
+            clearLine(START, INSTR_LINE);
+      }
+   }
+   else
+   {
+      temp = ships[PLAYER_INDEX];
+      matrix[row][col] = EMPTY;
+      ships[PLAYER_INDEX]++;
+
+      // detectar si el jugador quiere modificar los barcos
+      // después de haber colocado todos
+      if (temp == EMPTY && ships[PLAYER_INDEX] > EMPTY)
+         clearLine(START, INSTR_LINE);
+   }
+
+   return;
+}
+
+/*
    Función    : placeComputerShip
-   Argumentos : int battleground[][DIMENSION] (matriz que representa el óceano)
+   Argumentos : int matrix[][DIMENSION] (matriz que representa el óceano)
                 int count (cantidad de barcos)
    Onjetivo   : colocar los barcos de la computadora.
    Retorno    : ---
 */
-void placeComputerShip(int battleground[][DIMENSION], int count)
+void placeComputerShip(int matrix[][DIMENSION], int count)
 {
    int row, col;
 
@@ -371,15 +412,16 @@ void placeComputerShip(int battleground[][DIMENSION], int count)
    do {
       row = rand() % DIMENSION;
       col = rand() % DIMENSION;
-   } while (battleground[row][col] != EMPTY);
+   } while (matrix[row][col] != EMPTY);
 
-   battleground[row][col] = COMPUTER;
+   matrix[row][col] = COMPUTER;
    Sleep(DELAY);
    gotoxy(SHIP_DEP_X, SHIP_DEP_Y+MAX_SHIPS-count+1);
    printf("Barco %d desplegado...", MAX_SHIPS - count + 1);
 
    return;
 }
+
 
 
 
