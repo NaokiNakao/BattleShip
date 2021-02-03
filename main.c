@@ -281,17 +281,19 @@ void showBattleground(int matrix[][DIMENSION],int sel_row,int sel_col,int flag)
          else if (matrix[row][col] == PLAYER && !flag)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
-         /*else if (matrix[row][col] == PLAYER_SHIP_DOWN)
+         // diferenciando la casilla con barco de jugador hundido
+         else if (matrix[row][col] == PLAYER_SHIP_DOWN)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
+         // diferenciando la casilla con barco de computadora hundido
          else if (matrix[row][col] == COMPUTER_SHIP_DOWN)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
+         // diferenciando la casilla errónea
          else if (matrix[row][col] == FAILLED)
-            setColor(FAILLED_COLOR, OCEAN_COLOR);*/
-         else if (matrix[row][col] != EMPTY)
-            setColor(SHIP_COLOR, OCEAN_COLOR);
+            setColor(FAILLED_COLOR, OCEAN_COLOR);
 
+         // casilla oculta
          else
             setColor(OCEAN_COLOR, OCEAN_COLOR);
 
@@ -550,7 +552,7 @@ void computerGuess(int matrix[][DIMENSION],int f_matrix[][DIMENSION],int ships[]
       ships[COMPUTER_INDEX]--;
    }
    // la computadora no acertó ningún barco
-   else if (matrix[row][col] == EMPTY)
+   else if (matrix[row][col] == EMPTY || matrix[row][col] == FAILLED)
    {
       resultComputer(EMPTY);
       f_matrix[row][col] = COMPUTER_FAIL;
