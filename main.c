@@ -2,7 +2,7 @@
    Juego de Battleship programado en C.
 
    Autor : Naoki Nakao
-   Fecha :
+   Fecha : 2 de febrero, 2021
 */
 
 #include <stdio.h>
@@ -132,10 +132,6 @@ void game(int battleground[][DIMENSION])
       gotoxy(INI_X-13, INI_Y+17);
       printf("Tus barcos : %d | Barcos de la computadora : %d",
              ships[PLAYER_INDEX], ships[COMPUTER_INDEX]);
-
-      // imprimiendo controles del juego
-      //gotoxy(INI_X-13, INI_Y+18);
-      //printf("Movimiento: Flechas | Acci%cn: [ENTER] | Salir: [ESC]", O_TILDE);
 
       // terminando el juego si hay ganador
       if (game_over)
@@ -269,9 +265,9 @@ void game(int battleground[][DIMENSION])
 /*
    Función    : showBattleground
    Argumentos : int matrix[][DIMENSION] (matriz que representa el océano)
-                int sel_row (fila seleccionada).
-                int sel_col (columna seleccionada).
-                int flag (indica si se deben esconder el caracter del jugador.
+                int sel_row (fila seleccionada)
+                int sel_col (columna seleccionada)
+                int flag (indica si se debe esconder el caracter del jugador
    Onjetivo   : mostrar en pantalla el terreno de juego.
    Retorno    : ---
 */
@@ -318,7 +314,7 @@ void showBattleground(int matrix[][DIMENSION],int sel_row,int sel_col,int flag)
          else if (matrix[row][col] == COMPUTER_SHIP_DOWN)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
-         // diferenciando la casilla errónea
+         // diferenciando la casilla con intento fallido
          else if (matrix[row][col] == FAILLED)
             setColor(FAILLED_COLOR, OCEAN_COLOR);
 
@@ -380,8 +376,8 @@ void clearLine(int x, int y)
 
 /*
    Función    : instruction
-   Argumentos : command (especifica la instrucción actual).
-   Onjetivo   : imprimir en pantalla lo que debe hacer el jugador.
+   Argumentos : command (especifica la instrucción actual)
+   Onjetivo   : imprimir en pantalla lo que debe hacer el jugador
    Retorno    : ---
 */
 void instruction(int command)
@@ -624,6 +620,8 @@ void resultComputer(int command)
 */
 void winner(int ships[])
 {
+   char key;
+
    clearLine(START, INSTR_LINE);
 
    // si el jugador ganó
@@ -640,9 +638,12 @@ void winner(int ships[])
    }
 
    gotoxy(SHIP_DEP_X, SHIP_DEP_Y);
-   printf("Presiona cualquier tecla");
-   Sleep(DELAY*2);
-   getch();
+   printf("Presione ESC para continuar.");
+
+   do {
+      key = getch();
+   } while (key != ESC);
+
    clrscr();
    clearLine(START, INI_Y+17);
 
