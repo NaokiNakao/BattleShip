@@ -68,7 +68,7 @@ void placePlayerShip(int [][DIMENSION], int [], int, int);
 void placeComputerShip(int [][DIMENSION], int);
 void playerGuess(int [][DIMENSION], int [], int, int);
 void resultPlayer(int);
-void computerGuess(int [][DIMENSION], int []);
+void computerGuess(int [][DIMENSION], int [][DIMENSION], int []);
 void resultComputer(int);
 void winner(int []);
 
@@ -103,7 +103,8 @@ void game(int battleground[][DIMENSION])
 {
    char key;
    int pos_x = 0, pos_y = 0, ships[] = {MAX_SHIPS, MAX_SHIPS},
-       ready = FALSE, computer_placing = FALSE, temp, game_over = FALSE;
+       ready = FALSE, computer_placing = FALSE, temp, game_over = FALSE,
+       computer_fails[DIMENSION][DIMENSION];
 
    clearLine(START, INSTR_LINE);
 
@@ -175,18 +176,21 @@ void game(int battleground[][DIMENSION])
             if (battleground[pos_x][pos_y] == PLAYER_SHIP_DOWN ||
                 battleground[pos_x][pos_y] == COMPUTER_SHIP_DOWN)
             {
+               clearLine(START, INSTR_LINE);
                gotoxy(INI_X-4, RESULT_LINE);
                printf("Ya se hundi%c un barco aqu%c", 162, 161);
                continue;
             }
+            // turno del jugador
             playerGuess(battleground, ships, pos_x, pos_y);
             if (!ships[COMPUTER_INDEX] || !ships[PLAYER_INDEX])
                game_over = TRUE;
 
+            // turno de la computadora
             if (!game_over)
             {
                Sleep(DELAY*3);
-               computerGuess(battleground, ships);
+               computerGuess(battleground, computer_fails, ships);
                if (!ships[PLAYER_INDEX] || !ships[COMPUTER_INDEX])
                   game_over = TRUE;
             }
@@ -274,23 +278,18 @@ void showBattleground(int matrix[][DIMENSION],int sel_row,int sel_col,int flag)
             setColor(CURSOR_COLOR, CURSOR_COLOR);
 
          // diferenciando la casilla con barco del jugador
-         //else if (matrix[row][col] == PLAYER && !flag)
-         else if (matrix[row][col] == PLAYER)
+         else if (matrix[row][col] == PLAYER && !flag)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
-         else if (matrix[row][col] == COMPUTER)
-            setColor(SHIP_COLOR, OCEAN_COLOR);
-
-         else if (matrix[row][col] == PLAYER_SHIP_DOWN)
+         /*else if (matrix[row][col] == PLAYER_SHIP_DOWN)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
          else if (matrix[row][col] == COMPUTER_SHIP_DOWN)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
          else if (matrix[row][col] == FAILLED)
-            setColor(FAILLED_COLOR, OCEAN_COLOR);
-
-         else if (matrix[row][col] == COMPUTER_FAIL)
+            setColor(FAILLED_COLOR, OCEAN_COLOR);*/
+         else if (matrix[row][col] != EMPTY)
             setColor(SHIP_COLOR, OCEAN_COLOR);
 
          else
@@ -477,8 +476,7 @@ void playerGuess(int matrix[][DIMENSION], int ships[], int row, int col)
       ships[PLAYER_INDEX]--;
    }
    // el jugador no adivina ningún barco
-   else if (matrix[row][col] == EMPTY ||
-            matrix[row][col] == COMPUTER_FAIL)
+   else if (matrix[row][col] == EMPTY || matrix[row][col] == FAILLED)
    {
       resultPlayer(EMPTY);
       matrix[row][col] = FAILLED;
@@ -519,11 +517,12 @@ void resultPlayer(int command)
 /*
    Función    : computerGuess
    Argumentos : int matrix[][DIMENSION] (matriz que representa el óceano)
+                int f_matrix[][DIMENSION] (matriz con fallos de la computadora)
                 int ships[] (arreglo que contiene la cantidad de barcos)
    Onjetivo   : hacer jugada de la computadora
    Retorno    : ---
 */
-void computerGuess(int matrix[][DIMENSION], int ships[])
+void computerGuess(int matrix[][DIMENSION],int f_matrix[][DIMENSION],int ships[])
 {
    int row, col;
 
@@ -532,7 +531,9 @@ void computerGuess(int matrix[][DIMENSION], int ships[])
    do {
       row = rand() % DIMENSION;
       col = rand() % DIMENSION;
-   } while (matrix[row][col] == COMPUTER_FAIL);
+   } while (matrix[row][col] == PLAYER_SHIP_DOWN ||
+            matrix[row][col] == COMPUTER_SHIP_DOWN ||
+            f_matrix[row][col] == COMPUTER_FAIL);
 
    // la computadora adivina coordenadas de un barco del jugador
    if (matrix[row][col] == PLAYER)
@@ -552,7 +553,7 @@ void computerGuess(int matrix[][DIMENSION], int ships[])
    else if (matrix[row][col] == EMPTY)
    {
       resultComputer(EMPTY);
-      matrix[row][col] = COMPUTER_FAIL;
+      f_matrix[row][col] = COMPUTER_FAIL;
    }
 }
 
