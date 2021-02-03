@@ -86,6 +86,8 @@ int main()
       gotoxy(INI_X, INI_Y);
       printf("--- Battleship ---");
       instruction(START);
+      gotoxy(INI_X-13, INI_Y+19);
+      printf("Movimiento: Flechas | Acci%cn: [ENTER] | Salir: [ESC]", O_TILDE);
       getch();
 
       // matriz 10x10 para representar el juego
@@ -130,6 +132,10 @@ void game(int battleground[][DIMENSION])
       gotoxy(INI_X-13, INI_Y+17);
       printf("Tus barcos : %d | Barcos de la computadora : %d",
              ships[PLAYER_INDEX], ships[COMPUTER_INDEX]);
+
+      // imprimiendo controles del juego
+      //gotoxy(INI_X-13, INI_Y+18);
+      //printf("Movimiento: Flechas | Acci%cn: [ENTER] | Salir: [ESC]", O_TILDE);
 
       // terminando el juego si hay ganador
       if (game_over)
@@ -635,6 +641,7 @@ void winner(int ships[])
 
    gotoxy(SHIP_DEP_X, SHIP_DEP_Y);
    printf("Presiona cualquier tecla");
+   Sleep(DELAY*2);
    getch();
    clrscr();
    clearLine(START, INI_Y+17);
