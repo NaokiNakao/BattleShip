@@ -8,7 +8,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <conio.c>
-#include <string.h>
 #include <time.h>
 
 /* Directivas de preprocesador */
@@ -50,6 +49,11 @@
 #define OCEAN_COLOR         BLUE
 #define SHIP_COLOR        YELLOW
 #define FAILLED_COLOR        RED
+
+#define EXCLAMATION     173
+#define INTERROGATION   168
+#define I_TILDE         161
+#define O_TILDE         162
 
 #define START    1
 #define PREP     2
@@ -178,7 +182,7 @@ void game(int battleground[][DIMENSION])
             {
                clearLine(START, INSTR_LINE);
                gotoxy(INI_X-4, RESULT_LINE);
-               printf("Ya se hundi%c un barco aqu%c", 162, 161);
+               printf("Ya se hundi%c un barco aqu%c", O_TILDE, I_TILDE);
                continue;
             }
             // turno del jugador
@@ -207,7 +211,7 @@ void game(int battleground[][DIMENSION])
       {
          _setcursortype(30);
          gotoxy(SHIP_DEP_X, SHIP_DEP_Y);
-         printf("%cDesea salir? (S)i (N)o : ", 168);
+         printf("%cDesea salir? (S)i (N)o : ", INTERROGATION);
 
          do {
             key = toupper(getch());
@@ -258,9 +262,9 @@ void game(int battleground[][DIMENSION])
 
 /*
    Función    : showBattleground
-   Argumentos : int battleground[][DIMENSION] (matriz que representa el océano)
-                int select_row (fila seleccionada).
-                int select_col (columna seleccionada).
+   Argumentos : int matrix[][DIMENSION] (matriz que representa el océano)
+                int sel_row (fila seleccionada).
+                int sel_col (columna seleccionada).
                 int flag (indica si se deben esconder el caracter del jugador.
    Onjetivo   : mostrar en pantalla el terreno de juego.
    Retorno    : ---
@@ -273,8 +277,27 @@ void showBattleground(int matrix[][DIMENSION],int sel_row,int sel_col,int flag)
    {
       for (col = 0; col < DIMENSION; col++)
       {
+         // diferenciando casilla seleccionada con barco hundido
+         if (sel_row == row && sel_col == col &&
+             (matrix[row][col] == PLAYER_SHIP_DOWN ||
+              matrix[row][col] == COMPUTER_SHIP_DOWN))
+         {
+            setColor(SHIP_COLOR, CURSOR_COLOR);
+         }
+
+         // diferenciando casilla con intento fallido y seleccionada
+         else if (sel_row == row && sel_col == col && matrix[row][col] == FAILLED)
+            setColor(FAILLED_COLOR, CURSOR_COLOR);
+
+         // diferenciando la casilla seleccionada con barco del jugador
+         else if (sel_row == row && sel_col == col &&
+                  matrix[row][col] == PLAYER && !flag)
+         {
+            setColor(SHIP_COLOR, CURSOR_COLOR);
+         }
+
          // diferenciando la casilla seleccionada del resto
-         if (sel_row == row && sel_col == col)
+         else if (sel_row == row && sel_col == col)
             setColor(CURSOR_COLOR, CURSOR_COLOR);
 
          // diferenciando la casilla con barco del jugador
@@ -500,7 +523,7 @@ void resultPlayer(int command)
    if  (command == COMPUTER)
    {
       gotoxy(INI_X-5, RESULT_LINE);
-      printf("%cBoom!%cHas hundido el barco!", 173, 173);
+      printf("%cBoom!%cHas hundido el barco!", EXCLAMATION, EXCLAMATION);
    }
    else if (command == PLAYER)
    {
@@ -510,7 +533,8 @@ void resultPlayer(int command)
    else if (command == EMPTY)
    {
       gotoxy(INI_X-2, RESULT_LINE);
-      printf("%cLo siento, fallaste!", 173);
+      printf("%cLo siento, fallaste!", EXCLAMATION);
+
    }
 
    return;
@@ -572,17 +596,17 @@ void resultComputer(int command)
    if (command == PLAYER)
    {
       gotoxy(INI_X-11, RESULT_LINE);
-      printf("%cLa computadora hundi%c uno de sus barcos!", 173, 162);
+      printf("%cLa computadora hundi%c uno de sus barcos!", EXCLAMATION, O_TILDE);
    }
    else if (command == COMPUTER)
    {
       gotoxy(INI_X-13, RESULT_LINE);
-      printf("%cLa computadora hundi%c una de sus propias naves!", 173, 162);
+      printf("%cLa computadora hundi%c una de sus propias naves!", EXCLAMATION, O_TILDE);
    }
    else if (command == EMPTY)
    {
       gotoxy(INI_X-5, RESULT_LINE);
-      printf("%cLa computadora ha fallado!", 173);
+      printf("%cLa computadora ha fallado!", EXCLAMATION);
    }
 }
 
@@ -600,7 +624,7 @@ void winner(int ships[])
    if (!ships[COMPUTER_INDEX])
    {
       gotoxy(INI_X-2, INSTR_LINE);
-      printf("%cFelicidades, ganaste!", 173);
+      printf("%cFelicidades, ganaste!", EXCLAMATION);
    }
    // si la computadora ganó
    if (!ships[PLAYER_INDEX])
